@@ -15,6 +15,7 @@ import PySimpleGUI as sg
 from generate_password import generate_passwords
 from excel_operations import CreateExcel
 from CheckPasswordStrength import check_password_strength
+from generate_password import generate_userpass
 import pyperclip
 def main():
     label1 = sg.Text("Enter No.of Passwords:")
@@ -40,15 +41,17 @@ def main():
     label3 = sg.Text("You can Enter an Account and Store it in Excel",key="Updates")
     label4 = sg.Text("",key="Message")
     sep = sg.HSeparator()
+    vsep = sg.VSeparator()
     inputbox_multi = sg.Multiline("", enable_events=True, key='multi',
-                                  size=(10,15),
-                                  expand_x=True,
-                                  expand_y=True,
-                                  justification='left')
+                                  size=(20,16),
+                                  justification='left',
+                                  background_color="lightblue",
+                                  text_color="black")
+    userpass_label  = sg.Text("Provide Words below to generate custom passwords")
     use_button = sg.Button("Use These",key="user_pass")
     window = sg.Window(title = "Memorable Password Generator",
-                       layout = [[use_button, label1,input_box_no_of_passwords,gen_button],
-                                 [inputbox_multi,listbox_reads,listbox_pass,copy_button],
+                       layout = [[userpass_label, use_button, label1,input_box_no_of_passwords,gen_button],
+                                 [inputbox_multi,vsep,listbox_reads,listbox_pass,copy_button],
                                  [label_account,inputbox_acount,save_button],
                                  [sep],
                                  [label2],
@@ -90,6 +93,17 @@ def main():
 
         elif event == "save":
             pass
+
+        elif event == "user_pass":
+            try:
+                list_to_consider = value['multi'].split('\n')
+                print(type(list_to_consider))
+                print(list_to_consider)
+                passwords,readables = generate_userpass(list_to_consider)
+                window['listofpasswords'].update(values=passwords)
+                window['listofreads'].update(values=readables)
+            except IndexError:
+                sg.popup("Provide Custom Words, or use Common words in the next section")
 if __name__ == '__main__':
     main()
 

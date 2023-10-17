@@ -15,6 +15,7 @@ import PySimpleGUI as sg
 from generate_password import generate_passwords
 from excel_operations import CreateExcel
 from CheckPasswordStrength import check_password_strength
+from generate_password import generate_userpass
 import pyperclip
 
 
@@ -48,10 +49,9 @@ def main():
     sep = sg.VSeparator()
     seph = sg.HSeparator()
     inputbox_multi = sg.Multiline("", enable_events=True, key='multi',
-                                  size=(10,20),
-                                  expand_x=True,
-                                  expand_y=True,
-                                  justification='left')
+                                  size=(20,16),
+                                  justification='left',
+                                  background_color="lightblue")
     use_button = sg.Button("Use These", key="user_pass",
                            size=(10,1))
     # filler1 = sg.Text("")
@@ -117,6 +117,15 @@ def main():
         elif event == "save":
             pass
 
-
+        elif event == "user_pass":
+            try:
+                list_to_consider = value['multi'].split('\n')
+                print(type(list_to_consider))
+                print(list_to_consider)
+                passwords,readables = generate_userpass(list_to_consider)
+                window['listofpasswords'].update(values=passwords)
+                window['listofreads'].update(values=readables)
+            except IndexError:
+                sg.popup("Provide Custom Words, or use Common words in the next section")
 if __name__ == '__main__':
     main()
