@@ -96,7 +96,7 @@ def print_Password(passw,readables):
 def CreateExcel(rowdata):
     # ... (same as in your original code)
     # Check if the Excel file exists
-    os.chdir(r"G:\PY\passowordgen")
+    os.chdir(r"G:\PY\Ananypass")
     file_path = 'PasswordRecords.xlsx' # Use the same file_path variable
     if os.path.exists(file_path):
         # File exists, open it

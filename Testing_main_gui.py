@@ -13,7 +13,7 @@ It is recommended not to use a strong memorable password to open the Excel passw
 
 import PySimpleGUI as sg
 from generate_password import generate_passwords
-from excel_operations import CreateExcel
+from excel_operations import CreateExcel_try
 from CheckPasswordStrength import check_password_strength
 from generate_password import generate_userpass
 import pyperclip
@@ -32,10 +32,10 @@ def main():
     listbox_pass = sg.Listbox(values="",
                               key="listofpasswords",
                               enable_events=True,
-                              size=[20, 15])
+                              size=[20, 13])
     listbox_reads = sg.Listbox(values="",
                                key="listofreads",
-                               size=[20, 15])
+                               size=[20, 13])
     inputbox_acount = sg.InputText(tooltip="Save for Account",
                                    key="Account",
                                    font=('Calibri', 8),
@@ -49,11 +49,15 @@ def main():
     sep = sg.VSeparator()
     seph = sg.HSeparator()
     inputbox_multi = sg.Multiline("", enable_events=True, key='multi',
-                                  size=(20,16),
+                                  size=(20,15),
                                   justification='left',
                                   background_color="lightblue")
     use_button = sg.Button("Use These", key="user_pass",
                            size=(10,1))
+    inputbox_folder = sg.Input(tooltip="Chosen Folder to save the Passwords",
+                               key="folder_to_save",
+                               size=(33,1))
+    button_folder = sg.FolderBrowse("Select Folder",key="Folder")
     # filler1 = sg.Text("")
     # filler2 = sg.Text("")
     left_column_content = [[LabelSelfPass],
@@ -63,11 +67,12 @@ def main():
     # Prepare the widgets for the right column
     right_column_content = [[label1,input_box_no_of_passwords,gen_button],
                             [listbox_reads,listbox_pass,copy_button],
-                            [seph],
-                            [label_account,inputbox_acount,save_button],
                             [label2],
                             [label3],
-                            [label4]]
+                            [seph],
+                            [label4],
+                            [inputbox_folder,button_folder],
+                            [label_account,inputbox_acount,save_button],]
 
     left_column = sg.Column(left_column_content)
     right_column = sg.Column(right_column_content)
@@ -110,12 +115,9 @@ def main():
                 PasswordStrength = check_password_strength(copied_text)
                 Message = f"Your Selected Password is {PasswordStrength[0]}, it will take {PasswordStrength[1]} years to Crack"
                 window['Strength'].update(value=Message)
-                window['Message'].update(value="Consider Saving it in Records")
+                window['Message'].update(value="Consider Saving it in Records - You only need to select Folder Once")
             except IndexError:
                 sg.popup("Select a Password First", font=('calibri', 12))
-
-        elif event == "save":
-            pass
 
         elif event == "user_pass":
             try:
@@ -127,5 +129,17 @@ def main():
                 window['listofreads'].update(values=readables)
             except IndexError:
                 sg.popup("Provide Custom Words, or use Common words in the next section")
+
+        elif event == "Folder":
+            pass
+        elif event == "save":
+            password_to_save = value['listofpasswords'][0]
+            Password_account = value['Account']
+            data_to_save = [password_to_save,Password_account]
+            location_to_save = value['folder_to_save']
+            if location_to_save == "" :
+                location_to_save = "."
+            CreateExcel_try(data_to_save,location_to_save)
+
 if __name__ == '__main__':
     main()
