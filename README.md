@@ -9,3 +9,6 @@ GUI Based Passowrd Generator with Hindi readable memorable words for and creatin
 * In next version you will be able to password protect the excel so that only you can access your passwords.
 
 If you like my work, buy me a Beer. Cheers. 
+
+![QR Code](QR.jpeg)
+
