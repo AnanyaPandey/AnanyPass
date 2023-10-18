@@ -10,6 +10,7 @@ User then has an option to select and Copy it and save it in Excel File for Reco
 It is recommended not to use a strong memorable password to open the Excel passwird
 
 """
+import pickle
 
 import PySimpleGUI as sg
 from generate_password import generate_passwords
@@ -133,13 +134,29 @@ def main():
         elif event == "Folder":
             pass
         elif event == "save":
-            password_to_save = value['listofpasswords'][0]
-            Password_account = value['Account']
-            data_to_save = [password_to_save,Password_account]
-            location_to_save = value['folder_to_save']
-            if location_to_save == "" :
-                location_to_save = "."
-            CreateExcel_try(data_to_save,location_to_save)
+            try:
+                password_to_save = value['listofpasswords'][0]
+                Password_account = value['Account']
+                data_to_save = [password_to_save,Password_account]
+                location_to_save = value['folder_to_save']
+                filename = 'mypickle.pk'
+                if Password_account == "":
+                    sg.popup("Please Enter Account for which you want to save the password")
+                    continue
+                if location_to_save == "":
+                    with open(filename,'rb') as fi:
+                        location_to_save = pickle.load(fi)
+                        print(location_to_save)
+                else : # Saving location
+                    with open(filename,'wb') as fi:
+                        pickle.dump(location_to_save, fi)
+                        print(location_to_save)
+                # Creating and Saving in Excel
+                CreateExcel_try(data_to_save,location_to_save)
+            except FileNotFoundError:
+                sg.popup("You Must Choose the Folder First Time")
+            except IndexError:
+                sg.popup("Select a password to save.")
 
 if __name__ == '__main__':
     main()

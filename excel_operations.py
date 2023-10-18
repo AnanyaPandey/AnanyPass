@@ -5,8 +5,12 @@ from pathlib import Path
 def CreateExcel(rowdata,location):
     # ... (same as in your original code)
     # Check if the Excel file exists
-    os.chdir(r"G:\PY\Ananypass")
+    
     target_dir = Path(location)
+    os.chdir(target_dir)
+
+    print(Path.cwd())
+    print("Testing")
     file_path = 'PasswordRecords.xlsx' # Use the same file_path variable
     if os.path.exists(file_path):
         # File exists, open it
@@ -37,18 +41,17 @@ def CreateExcel(rowdata,location):
     workbook.close()
     return
 
-def CreateExcel_try(rowdata,location):
-    # ... (same as in your original code)
-    # Check if the Excel file exists
+def CreateExcel_try(rowdata, location):
+    # Create a Path object for the target directory
     target_dir = Path(location)
-    file_path = 'PasswordRecords.xlsx' # Use the same file_path variable
-    file_path = Path(target_dir/file_path)
-    if os.path.exists(file_path):
+    filename = 'PasswordRecords.xlsx'
+    file_path = target_dir / filename
+    print(file_path)
+    if file_path.exists():
         # File exists, open it
         workbook = openpyxl.load_workbook(file_path)
-        # print(f"Opening existing Excel file: {file_path}")
     else:
-        # Create a new Excel workbook
+        # Create a new Excel workbook and worksheet
         workbook = openpyxl.Workbook()
         workbook.save(file_path)
 
@@ -60,19 +63,28 @@ def CreateExcel_try(rowdata,location):
 
     if first_row_empty:
         # Add your header data to the first row
-        header = ["Password","Application_Account"]
+        header = ["Password", "Application_Account"]
         for i, value in enumerate(header, start=1):
             worksheet.cell(row=1, column=i, value=value)
-        worksheet.append(rowdata)
-    else:
-        # Add your data to the first row
-        worksheet.append(rowdata)
 
-    workbook.save("PasswordRecords.xlsx")
+    # Add your data to the worksheet
+    worksheet.append(rowdata)
+    print("Append Success")
+
+    # Save and close the workbook with the file_path
+    workbook.save(file_path)
     workbook.close()
-    return
 
-if __name__ == '__main__':
-    rowdata = ['Anany$132','Whatsapp']
+if __name__ == '__main':
+    R1 = ['Anany$132', 'Whatsapp']
+    R2 = ['Passw0rd@@', 'Jamadar']
+    R3 = ['@#2DFDf', 'Whatever']
     location = 'G:/py/Udemy/TestZone'
-    CreateExcel_try(rowdata,location)
+
+    #CreateExcel_try(R1, location)
+    #CreateExcel_try(R2, location)
+    #CreateExcel_try(R3, location)
+
+    CreateExcel(R1,location)
+    CreateExcel(R2,location)
+    CreateExcel(R3,location)
