@@ -5,7 +5,7 @@ from pathlib import Path
 def CreateExcel(rowdata,location):
     # ... (same as in your original code)
     # Check if the Excel file exists
-    
+    print("TETTING")
     target_dir = Path(location)
     os.chdir(target_dir)
 
@@ -46,7 +46,6 @@ def CreateExcel_try(rowdata, location):
     target_dir = Path(location)
     filename = 'PasswordRecords.xlsx'
     file_path = target_dir / filename
-    print(file_path)
     if file_path.exists():
         # File exists, open it
         workbook = openpyxl.load_workbook(file_path)
@@ -69,22 +68,21 @@ def CreateExcel_try(rowdata, location):
 
     # Add your data to the worksheet
     worksheet.append(rowdata)
-    print("Append Success")
 
     # Save and close the workbook with the file_path
     workbook.save(file_path)
     workbook.close()
 
-if __name__ == '__main':
+if __name__ == '__main__':
     R1 = ['Anany$132', 'Whatsapp']
     R2 = ['Passw0rd@@', 'Jamadar']
     R3 = ['@#2DFDf', 'Whatever']
     location = 'G:/py/Udemy/TestZone'
 
-    #CreateExcel_try(R1, location)
-    #CreateExcel_try(R2, location)
-    #CreateExcel_try(R3, location)
+    CreateExcel_try(R1, location)
+    CreateExcel_try(R2, location)
+    CreateExcel_try(R3, location)
 
-    CreateExcel(R1,location)
-    CreateExcel(R2,location)
-    CreateExcel(R3,location)
+    #CreateExcel(R1,location)
+    #CreateExcel(R2,location)
+    #CreateExcel(R3,location)
