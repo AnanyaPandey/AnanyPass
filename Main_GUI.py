@@ -171,8 +171,8 @@ def Run_Ananypass():
 def main():
     while True :
         loginpass = Path('./user_password.pw')
-        input_password =  sg.popup_get_text('Password: ', password_char='*')
         if loginpass.exists():
+            input_password =  sg.popup_get_text('Password: ', password_char='*')
             with open(loginpass, 'rb') as file:
                 stored_hash = file.read()
                 print(stored_hash)
@@ -212,6 +212,7 @@ def main():
                         password_to_store = value['pass']                    
                         hash_password(password_to_store)
                         sg.popup_timed('Thanks! now Login with password')
+                        window.close()
                         break
                     else :
                         window['msglabel'].update(value="Password Does not Match! Retry")
