@@ -17,9 +17,10 @@ from excel_operations import CreateExcel_try
 from CheckPasswordStrength import check_password_strength
 from generate_password import generate_userpass
 import pyperclip
+from pathlib import Path
 
 
-def main():
+def Run_Ananypass():
     LabelSelfPass = sg.Text("You want Password generator\n"
                             "to consider custom words\n "
                             "provide it here each line")
@@ -165,6 +166,46 @@ def main():
                 sg.popup("You Must Choose the Folder First Time")
             except IndexError:
                 sg.popup("Select a password to save.")
+
+def main():
+    loginpass = Path('./user_password.pw')
+    if loginpass.exists():
+        pass
+    else :
+        create_pass_label = sg.Text("Thanks for using Ananypass, Create your password!")
+        label1 = sg.Text("Enter a password")
+        label2 = sg.Text("Enter same password")
+        passwordinput = sg.InputText(key="pass",
+                                     size=(20,1),
+                                     password_char="*")
+        passwordcheck = sg.InputText(key="check",
+                                     size=(20,1),
+                                     password_char="*")
+        sub_button = sg.Button("Submit",key="Submit")
+        msg_label = sg.Text("",key="msglabel")
+        LAYOUT = [[create_pass_label],
+                  [label1,passwordinput],
+                  [label2,passwordcheck],
+                  [sub_button,msg_label]]
+        window = sg.Window(title="Create Password",
+                    layout=LAYOUT,
+                    font=('calibri', 10))
+        while True:
+            event, value = window.read()
+            if event == sg.WIN_CLOSED:
+                window.close()
+                exit()
+            if event == "Submit" :
+                if value['pass'] == value['check'] :
+                    pass
+                else :
+                    window['msglabel'].update(value="Password Does not Match! Retry")
+                    window['check'].update(value="")                    
+                    window['pass'].update(value="")
+            print(event)
+            print(value)
+            # sg.popup_ok("Incorrect Password")
+
 
 if __name__ == '__main__':
     main()
