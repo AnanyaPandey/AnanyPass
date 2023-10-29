@@ -32,7 +32,11 @@ def Run_Ananypass():
                                              font=('Calibri', 8),
                                              size=(20, 1))
     gen_button = sg.Button("Generate", key="generate")
-    show_pass = sg.Button("Stored Passwords",key="showpass",disabled=True,size=(10,2))
+    temp = Path('mypickle.pk')
+    if temp.exists():
+        show_pass = sg.Button("Stored Passwords",key="showpass",disabled=False,size=(10,2))
+    else :
+        show_pass = sg.Button("Stored Passwords",key="showpass",disabled=True,size=(10,2))
     listbox_pass = sg.Listbox(values="",
                               key="listofpasswords",
                               enable_events=True,
@@ -94,7 +98,9 @@ def Run_Ananypass():
         if event == sg.WIN_CLOSED:
             window.close()
             exit()
-
+        if 'location_to_save' not in locals():
+            location_to_save = value['folder_to_save']
+            
         print(event)
         print(value)
 
