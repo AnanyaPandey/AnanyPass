@@ -1,6 +1,9 @@
 import os
 import openpyxl
 from pathlib import Path
+import pandas as pd
+
+path = Path('.')
 
 def CreateExcel(rowdata,location):
     # ... (same as in your original code)
@@ -73,16 +76,24 @@ def CreateExcel_try(rowdata, location):
     workbook.save(file_path)
     workbook.close()
 
+def read_from_file(xl_path = path,xl_file=Path('PasswordRecords.xlsx')) :
+    completefile = xl_path/xl_file
+    if completefile.exists() :
+        df = pd.read_excel(xl_file)
+        Listof_passwords = list(df['Password'])
+        Listof_accounts = list(df['Application_Account'])
+        return [Listof_passwords,Listof_accounts]
+    else:
+        return "Not_Found"
+
+
 if __name__ == '__main__':
     R1 = ['Anany$132', 'Whatsapp']
     R2 = ['Passw0rd@@', 'Jamadar']
     R3 = ['@#2DFDf', 'Whatever']
-    location = 'G:/py/Udemy/TestZone'
+    path = Path('C:/py/password_win_app/AnanyPass')
 
-    CreateExcel_try(R1, location)
-    CreateExcel_try(R2, location)
-    CreateExcel_try(R3, location)
-
+    read_from_file(path,'PasswordRecords.xlsx')
     #CreateExcel(R1,location)
     #CreateExcel(R2,location)
     #CreateExcel(R3,location)

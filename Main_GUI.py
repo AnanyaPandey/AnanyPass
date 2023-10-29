@@ -14,6 +14,7 @@ import pickle
 import PySimpleGUI as sg
 from generate_password import generate_passwords
 from excel_operations import CreateExcel_try
+from excel_operations import read_from_file
 from CheckPasswordStrength import check_password_strength
 from generate_password import generate_userpass
 from encrypt_pass import hash_password, verify_password
@@ -31,6 +32,7 @@ def Run_Ananypass():
                                              font=('Calibri', 8),
                                              size=(20, 1))
     gen_button = sg.Button("Generate", key="generate")
+    show_pass = sg.Button("Stored Passwords",key="showpass",disabled=True,size=(10,2))
     listbox_pass = sg.Listbox(values="",
                               key="listofpasswords",
                               enable_events=True,
@@ -41,7 +43,7 @@ def Run_Ananypass():
     inputbox_acount = sg.InputText(tooltip="Save for Account",
                                    key="Account",
                                    font=('Calibri', 8),
-                                   size=(20,1))
+                                   size=(15,1))
     save_button = sg.Button("Save Record", key="save")
     copy_button = sg.Button("Copy", key="copy")
     label_account = sg.Text("Save it for Account:")
@@ -68,7 +70,7 @@ def Run_Ananypass():
                            [inputbox_multi],]
 
     # Prepare the widgets for the right column
-    right_column_content = [[label1,input_box_no_of_passwords,gen_button],
+    right_column_content = [[label1,input_box_no_of_passwords,gen_button,show_pass],
                             [listbox_reads,listbox_pass,copy_button],
                             [label2],
                             [label3],
@@ -87,7 +89,6 @@ def Run_Ananypass():
                        layout=LAYOUT,
                        font=('calibri', 10),
                        size=(670, 430))
-
     while True:
         event, value = window.read()
         if event == sg.WIN_CLOSED:
@@ -162,11 +163,31 @@ def Run_Ananypass():
                 message = f"Success! Your Password Information Stored in mentioned Location"
                 window['Success'].update(value=message,text_color="Yellow")
                 window['Account'].update(value="")
+                window['showpass'].update(disabled=False)
                 continue
             except FileNotFoundError:
                 sg.popup("You Must Choose the Folder First Time")
             except IndexError:
                 sg.popup("Select a password to save.")
+        
+        elif event == "showpass":
+            try:
+                if value['folder_to_save'] != '' :
+                    xl_path = value['folder_to_save']
+                elif 'location_to_save' in locals() :
+                    xl_path = location_to_save
+                 
+                data = read_from_file(xl_path)
+
+                if data == "Not_Found" :
+                    sg.popup("Incorrect Location or File Not Found in Given Location")
+                else :
+                    passwords_to_display = data[0]
+                    accounts_to_display = data[1]
+                    window['listofpasswords'].update(values=accounts_to_display)
+                    window['listofreads'].update(values=passwords_to_display)
+            except UnboundLocalError:
+                print("Location to save not set")
 
 def main():
     while True :
