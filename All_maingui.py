@@ -19,8 +19,12 @@ import pyperclip
 import openpyxl
 import re
 from sys import exit
+import bcrypt
+import pandas as pd
+
 
 ROOTDIR = Path('G:/py/Ananypass')
+path = Path('.')
 
 # List of Hindi words transliterated to English (you can extend this list)
 hindi_words_transliterated = [
@@ -41,6 +45,30 @@ hindi_words_transliterated2 = [
     "Shakeel", "gunda", "Aurat", "Panchi", "Chaman","Mogambo","Pustak"
     "Khidki", "Darwaza", "Mahal", "Gulaab","Kachra","Paanwala","Ghoda"
 ]
+
+
+def read_from_file(xl_path = path,xl_file=Path('PasswordRecords.xlsx')) :
+    completefile = xl_path/xl_file
+    if completefile.exists() :
+        df = pd.read_excel(xl_file)
+        Listof_passwords = list(df['Password'])
+        Listof_accounts = list(df['Application_Account'])
+        return [Listof_passwords,Listof_accounts]
+    else:
+        return "Not_Found"
+
+def hash_password(password):
+    # Generate a random salt and hash the password
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    with open('user_password.pw', 'wb') as file:
+        file.write(hashed_password)
+    return 
+
+def verify_password(password, stored_hash):
+    # Check if the provided password matches the stored hash
+    return bcrypt.checkpw(password.encode('utf-8'), stored_hash)
+
 
 def replace_characters(word):
     # ... (same as in your original code)
@@ -259,7 +287,8 @@ def estimate_crack_time(password, attempts_per_second=100000000000):
     # years_to_crack = years_to_crack/100
 
     return round(years_to_crack)
-def main():
+
+def Run_Ananypass():
     LabelSelfPass = sg.Text("You want Password generator\n"
                             "to consider custom words\n "
                             "provide it here each line")
@@ -269,6 +298,11 @@ def main():
                                              font=('Calibri', 8),
                                              size=(20, 1))
     gen_button = sg.Button("Generate", key="generate")
+    temp = Path('mypickle.pk')
+    if temp.exists():
+        show_pass = sg.Button("Stored Passwords",key="showpass",disabled=False,size=(10,2))
+    else :
+        show_pass = sg.Button("Stored Passwords",key="showpass",disabled=True,size=(10,2))
     listbox_pass = sg.Listbox(values="",
                               key="listofpasswords",
                               enable_events=True,
@@ -279,7 +313,7 @@ def main():
     inputbox_acount = sg.InputText(tooltip="Save for Account",
                                    key="Account",
                                    font=('Calibri', 8),
-                                   size=(20,1))
+                                   size=(15,1))
     save_button = sg.Button("Save Record", key="save")
     copy_button = sg.Button("Copy", key="copy")
     label_account = sg.Text("Save it for Account:")
@@ -306,7 +340,7 @@ def main():
                            [inputbox_multi],]
 
     # Prepare the widgets for the right column
-    right_column_content = [[label1,input_box_no_of_passwords,gen_button],
+    right_column_content = [[label1,input_box_no_of_passwords,gen_button,show_pass],
                             [listbox_reads,listbox_pass,copy_button],
                             [label2],
                             [label3],
@@ -324,14 +358,15 @@ def main():
     window = sg.Window(title="Memorable Password Generator",
                        layout=LAYOUT,
                        font=('calibri', 10),
-                       size=(670, 430))
-
+                       size=(680, 450))
     while True:
         event, value = window.read()
         if event == sg.WIN_CLOSED:
             window.close()
             exit()
-
+        if 'location_to_save' not in locals():
+            location_to_save = value['folder_to_save']
+            
         print(event)
         print(value)
 
@@ -400,11 +435,85 @@ def main():
                 message = f"Success! Your Password Information Stored in mentioned Location"
                 window['Success'].update(value=message,text_color="Yellow")
                 window['Account'].update(value="")
+                window['showpass'].update(disabled=False)
                 continue
             except FileNotFoundError:
                 sg.popup("You Must Choose the Folder First Time")
             except IndexError:
                 sg.popup("Select a password to save.")
+        
+        elif event == "showpass":
+            try:
+                if value['folder_to_save'] != '' :
+                    xl_path = value['folder_to_save']
+                elif 'location_to_save' in locals() :
+                    xl_path = location_to_save
+                 
+                data = read_from_file(xl_path)
+
+                if data == "Not_Found" :
+                    sg.popup("Incorrect Location or File Not Found in Given Location")
+                else :
+                    passwords_to_display = data[0]
+                    accounts_to_display = data[1]
+                    window['listofpasswords'].update(values=accounts_to_display)
+                    window['listofreads'].update(values=passwords_to_display)
+            except UnboundLocalError:
+                print("Location to save not set")
+
+def main():
+    while True :
+        loginpass = Path('./user_password.pw')
+        if loginpass.exists():
+            input_password =  sg.popup_get_text('Password: ', password_char='*')
+            with open(loginpass, 'rb') as file:
+                stored_hash = file.read()
+                print(stored_hash)
+                print(type(stored_hash))
+                if verify_password(input_password, stored_hash):
+                    Run_Ananypass()
+                    break
+                else:
+                    sg.popup_auto_close("Password Incorrect! Please Retry")
+                    # print("Password is incorrect.")
+        else :
+            create_pass_label = sg.Text("Thanks for using Ananypass, Create your password!")
+            label1 = sg.Text("Enter a password")
+            label2 = sg.Text("Enter same password")
+            passwordinput = sg.InputText(key="pass",
+                                        size=(20,1),
+                                        password_char="*")
+            passwordcheck = sg.InputText(key="check",
+                                        size=(20,1),
+                                        password_char="*")
+            sub_button = sg.Button("Submit",key="Submit")
+            msg_label = sg.Text("",key="msglabel")
+            LAYOUT = [[create_pass_label],
+                    [label1,passwordinput],
+                    [label2,passwordcheck],
+                    [sub_button,msg_label]]
+            window = sg.Window(title="Create Password",
+                        layout=LAYOUT,
+                        font=('calibri', 10))
+            while True:
+                event, value = window.read()
+                if event == sg.WIN_CLOSED:
+                    window.close()
+                    exit()
+                if event == "Submit" :
+                    if value['pass'] == value['check'] :
+                        password_to_store = value['pass']                    
+                        hash_password(password_to_store)
+                        sg.popup_timed('Thanks! now Login with password')
+                        window.close()
+                        break
+                    else :
+                        window['msglabel'].update(value="Password Does not Match! Retry")
+                        window['check'].update(value="")                    
+                        window['pass'].update(value="")
+                print(event)
+                print(value)
+                # sg.popup_ok("Incorrect Password")
 
 if __name__ == '__main__':
     main()

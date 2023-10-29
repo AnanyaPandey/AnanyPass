@@ -92,7 +92,7 @@ def Run_Ananypass():
     window = sg.Window(title="Memorable Password Generator",
                        layout=LAYOUT,
                        font=('calibri', 10),
-                       size=(670, 430))
+                       size=(680, 450))
     while True:
         event, value = window.read()
         if event == sg.WIN_CLOSED:
@@ -100,7 +100,7 @@ def Run_Ananypass():
             exit()
         if 'location_to_save' not in locals():
             location_to_save = value['folder_to_save']
-            
+
         print(event)
         print(value)
 
